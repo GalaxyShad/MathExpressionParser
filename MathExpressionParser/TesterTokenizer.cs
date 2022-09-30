@@ -72,6 +72,45 @@ namespace MathExpressionParser
                 token = tokenizer.NextToken();
             }
         }
+        [TestMethod]
+        public void CheckBrackets()
+        {
+            var tokenizer = new Tokenizer("1.2*(-3)+4-(5+6/(7*8))");
+
+            var correctTokens = new List<Token>()
+            {
+                new Token("1.2", TokenType.Number),
+                new Token("*", TokenType.Operand),
+                new Token("(", TokenType.Operand),
+                new Token("-", TokenType.Operand),
+                new Token("3", TokenType.Number),
+                new Token(")", TokenType.Operand),
+                new Token("+", TokenType.Operand),
+                new Token("4", TokenType.Number),
+                new Token("-", TokenType.Operand),
+                new Token("(", TokenType.Operand),
+                new Token("5", TokenType.Number),
+                new Token("+", TokenType.Operand),
+                new Token("6", TokenType.Number),
+                new Token("/", TokenType.Operand),
+                new Token("(", TokenType.Operand),
+                new Token("7", TokenType.Number),
+                new Token("*", TokenType.Operand),
+                new Token("8", TokenType.Number),
+                new Token(")", TokenType.Operand),
+                new Token(")", TokenType.Operand),
+
+            };
+
+            var token = tokenizer.CurrentToken;
+            foreach (var correctToken in correctTokens)
+            {
+                token.Type.Should().Be(correctToken.Type);
+                token.Value.Should().Be(correctToken.Value);
+
+                token = tokenizer.NextToken();
+            }
+        }
     }
 
     public enum TokenType
@@ -101,7 +140,7 @@ namespace MathExpressionParser
         private string _expression;
         private int _pos = -1;
 
-        private readonly string _operands = "+-/*";
+        private readonly string _operands = "+-/*()";
         public Tokenizer(string expression)
         {
             _expression = expression.Replace(" ", "");
@@ -146,9 +185,9 @@ namespace MathExpressionParser
             if (_operands.Contains(_expression[_pos]))
             {
                 buff += _expression[_pos];
-                //_pos++;
                 return new Token(buff, TokenType.Operand);
             }
+
 
 
             return new Token("", TokenType.Unknown);
